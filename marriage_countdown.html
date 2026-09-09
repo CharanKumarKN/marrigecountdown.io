@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marriage Countdown Timer</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Lato', sans-serif;
+            /* Romantic gradient background */
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        h1, h2, .wedding-font {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+
+        .floating-heart {
+            position: absolute;
+            bottom: -20px;
+            color: #ff4d6d;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .time-box {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .time-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(255, 77, 109, 0.2);
+        }
+
+        .number {
+            background: linear-gradient(to right, #ff4d6d, #c9184a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        /* Ensures content stays above background effects */
+        .content-wrapper {
+            z-index: 10;
+            position: relative;
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased">
+
+    <div id="hearts-container" class="fixed inset-0 overflow-hidden pointer-events-none z-0"></div>
+
+    <div class="content-wrapper flex-grow flex flex-col items-center justify-center p-4 sm:p-8">
+        
+        <main class="glass-panel rounded-3xl p-8 sm:p-12 max-w-4xl w-full text-center relative overflow-hidden">
+            
+            <!-- Decorative corner flourishes -->
+            <div class="absolute top-0 left-0 w-16 h-16 border-t-2 border-l-2 border-pink-300 rounded-tl-3xl opacity-50 m-4"></div>
+            <div class="absolute top-0 right-0 w-16 h-16 border-t-2 border-r-2 border-pink-300 rounded-tr-3xl opacity-50 m-4"></div>
+            <div class="absolute bottom-0 left-0 w-16 h-16 border-b-2 border-l-2 border-pink-300 rounded-bl-3xl opacity-50 m-4"></div>
+            <div class="absolute bottom-0 right-0 w-16 h-16 border-b-2 border-r-2 border-pink-300 rounded-br-3xl opacity-50 m-4"></div>
+
+            <div class="mb-4 text-pink-500">
+                <i class="fa-solid fa-rings-wedding text-4xl mb-2"></i>
+                <svg class="w-12 h-12 mx-auto" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+            </div>
+            
+            <h2 class="text-lg sm:text-xl text-gray-500 uppercase tracking-widest mb-2 font-semibold">Counting Down To</h2>
+            <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 wedding-font text-gray-800">Our Wedding Day</h1>
+            
+            <!-- Target Date Display -->
+            <div class="inline-block bg-pink-50 rounded-full px-6 py-2 mb-10 border border-pink-100 shadow-sm">
+                <p class="text-lg sm:text-xl text-pink-700 font-medium tracking-wide">
+                    <i class="fa-regular fa-calendar-heart mr-2"></i> February 27, 2027
+                </p>
+            </div>
+
+            <div class="flex flex-row justify-between gap-1 sm:gap-4 mb-8 w-full" id="countdown-grid">
+                
+                <!-- Months -->
+                <div class="time-box bg-white rounded-xl sm:rounded-2xl py-3 px-1 sm:p-6 shadow-sm border border-gray-100 flex flex-col items-center justify-center flex-1">
+                    <span id="months" class="number text-2xl sm:text-4xl md:text-5xl font-bold font-serif mb-1">0</span>
+                    <span class="text-[9px] sm:text-xs md:text-sm text-gray-500 uppercase tracking-wider font-semibold">Months</span>
+                </div>
+
+                <!-- Days -->
+                <div class="time-box bg-white rounded-xl sm:rounded-2xl py-3 px-1 sm:p-6 shadow-sm border border-gray-100 flex flex-col items-center justify-center flex-1">
+                    <span id="days" class="number text-2xl sm:text-4xl md:text-5xl font-bold font-serif mb-1">0</span>
+                    <span class="text-[9px] sm:text-xs md:text-sm text-gray-500 uppercase tracking-wider font-semibold">Days</span>
+                </div>
+
+                <!-- Hours -->
+                <div class="time-box bg-white rounded-xl sm:rounded-2xl py-3 px-1 sm:p-6 shadow-sm border border-gray-100 flex flex-col items-center justify-center flex-1">
+                    <span id="hours" class="number text-2xl sm:text-4xl md:text-5xl font-bold font-serif mb-1">0</span>
+                    <span class="text-[9px] sm:text-xs md:text-sm text-gray-500 uppercase tracking-wider font-semibold">Hours</span>
+                </div>
+
+                <!-- Minutes -->
+                <div class="time-box bg-white rounded-xl sm:rounded-2xl py-3 px-1 sm:p-6 shadow-sm border border-gray-100 flex flex-col items-center justify-center flex-1">
+                    <span id="minutes" class="number text-2xl sm:text-4xl md:text-5xl font-bold font-serif mb-1">0</span>
+                    <span class="text-[9px] sm:text-xs md:text-sm text-gray-500 uppercase tracking-wider font-semibold">Mins</span>
+                </div>
+                
+                <!-- Seconds -->
+                <div class="time-box bg-white rounded-xl sm:rounded-2xl py-3 px-1 sm:p-6 shadow-sm border border-gray-100 flex flex-col items-center justify-center flex-1">
+                    <span id="seconds" class="number text-2xl sm:text-4xl md:text-5xl font-bold font-serif mb-1">0</span>
+                    <span class="text-[9px] sm:text-xs md:text-sm text-gray-500 uppercase tracking-wider font-semibold">Secs</span>
+                </div>
+
+            </div>
+
+            <!-- Total Days Alternative View -->
+            <div class="mt-4 sm:mt-8 pt-6 border-t border-gray-200">
+                <p class="text-gray-600">Or exactly <span id="total-days" class="font-bold text-pink-600 text-lg">0</span> total days to go!</p>
+            </div>
+            
+            <!-- Message container shown when date is reached -->
+            <div id="celebration-message" class="hidden mt-8">
+                <h2 class="text-4xl text-pink-600 wedding-font font-bold animate-pulse">Today is the Day! 💍</h2>
+                <p class="text-xl mt-2 text-gray-600">Happy Wedding Day!</p>
+            </div>
+
+        </main>
+        
+        <footer class="mt-8 text-sm text-gray-400">
+            <p>A beautiful beginning awaits.</p>
+        </footer>
+    </div>
+
+    <script>
+        // The Wedding Date: Feb 27, 2027 (Midnight local time)
+        const weddingDate = new Date(2027, 1, 27, 0, 0, 0); // Month is 0-indexed (1 = February)
+
+        // DOM Elements
+        const monthsEl = document.getElementById('months');
+        const daysEl = document.getElementById('days');
+        const hoursEl = document.getElementById('hours');
+        const minutesEl = document.getElementById('minutes');
+        const secondsEl = document.getElementById('seconds');
+        const totalDaysEl = document.getElementById('total-days');
+        const countdownGrid = document.getElementById('countdown-grid');
+        const celebrationMessage = document.getElementById('celebration-message');
+
+        /**
+         * Calculates the difference between two dates in months, days, hours, mins, secs
+         * Accounts for variable month lengths and leap years.
+         */
+        function calculateTimeLeft() {
+            const now = new Date();
+            
+            // If the date has passed
+            if (now >= weddingDate) {
+                return null;
+            }
+
+            // Total time difference in milliseconds
+            const diffTime = weddingDate.getTime() - now.getTime();
+            
+            // Calculate total days for the bottom text
+            const totalDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            // Setup variables for precise calculation
+            let targetYear = weddingDate.getFullYear();
+            let targetMonth = weddingDate.getMonth();
+            let targetDay = weddingDate.getDate();
+            
+            let currentYear = now.getFullYear();
+            let currentMonth = now.getMonth();
+            let currentDay = now.getDate();
+
+            // Calculate Months and Days remaining accurately
+            let months = (targetYear - currentYear) * 12 + (targetMonth - currentMonth);
+            let days = targetDay - currentDay;
+
+            // If days are negative, we borrow from the previous month
+            if (days < 0) {
+                months--;
+                // Get days in the previous month relative to the target date
+                const prevMonth = new Date(targetYear, targetMonth, 0).getDate();
+                days += prevMonth;
+            }
+
+            // If borrowing caused months to go negative (shouldn't happen with future dates usually, but safe to check)
+            if (months < 0) {
+                months = 0;
+            }
+
+            // Calculate remaining time components
+            const hours = 23 - now.getHours();
+            const minutes = 59 - now.getMinutes();
+            const seconds = 59 - now.getSeconds();
+
+            return {
+                months,
+                days,
+                hours,
+                minutes,
+                seconds,
+                totalDays
+            };
+        }
+
+        function updateTimer() {
+            const timeLeft = calculateTimeLeft();
+
+            if (timeLeft) {
+                // Format numbers to have leading zeros if less than 10
+                monthsEl.textContent = timeLeft.months;
+                daysEl.textContent = timeLeft.days;
+                hoursEl.textContent = timeLeft.hours.toString().padStart(2, '0');
+                minutesEl.textContent = timeLeft.minutes.toString().padStart(2, '0');
+                secondsEl.textContent = timeLeft.seconds.toString().padStart(2, '0');
+                
+                totalDaysEl.textContent = timeLeft.totalDays.toLocaleString();
+            } else {
+                // Date reached
+                countdownGrid.classList.add('hidden');
+                document.getElementById('total-days').parentElement.classList.add('hidden');
+                celebrationMessage.classList.remove('hidden');
+                clearInterval(timerInterval);
+                createConfetti();
+            }
+        }
+
+        // Initialize and start timer
+        updateTimer();
+        const timerInterval = setInterval(updateTimer, 1000);
+
+        // --- Visual Effects ---
+
+        // Floating Hearts Background
+        function createFloatingHeart() {
+            const container = document.getElementById('hearts-container');
+            const heart = document.createElement('i');
+            
+            // Randomize heart styles
+            const heartClasses = ['fa-solid', 'fa-heart', 'floating-heart'];
+            heart.classList.add(...heartClasses);
+            
+            // Randomize position, size, and animation duration
+            const size = Math.random() * 20 + 10; // 10px to 30px
+            const left = Math.random() * 100; // 0% to 100%
+            const duration = Math.random() * 10 + 10; // 10s to 20s
+            
+            heart.style.fontSize = `${size}px`;
+            heart.style.left = `${left}vw`;
+            heart.style.animation = `float ${duration}s linear forwards`;
+            
+            // Optional: alternate colors
+            const colors = ['#ff4d6d', '#ff758f', '#ff8fa3', '#c9184a'];
+            heart.style.color = colors[Math.floor(Math.random() * colors.length)];
+
+            container.appendChild(heart);
+
+            // Remove heart after animation finishes
+            setTimeout(() => {
+                heart.remove();
+            }, duration * 1000);
+        }
+
+        // Generate a new heart every few seconds
+        setInterval(createFloatingHeart, 1500);
+        // Create initial batch
+        for(let i=0; i<5; i++) setTimeout(createFloatingHeart, i*300);
+
+
+        // Simple confetti effect for when the date is reached
+        function createConfetti() {
+            const colors = ['#ff4d6d', '#ffb3c1', '#ffffff', '#c9184a'];
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.style.position = 'fixed';
+                confetti.style.width = '10px';
+                confetti.style.height = '10px';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.top = '-10px';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.opacity = Math.random() + 0.5;
+                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                
+                document.body.appendChild(confetti);
+
+                const animationDuration = Math.random() * 3 + 2;
+                
+                confetti.animate([
+                    { transform: `translate3d(0,0,0) rotate(0deg)`, opacity: 1 },
+                    { transform: `translate3d(${Math.random()*200 - 100}px, 100vh, 0) rotate(${Math.random()*720}deg)`, opacity: 0 }
+                ], {
+                    duration: animationDuration * 1000,
+                    easing: 'cubic-bezier(.37,0,.63,1)',
+                    fill: 'forwards'
+                });
+
+                setTimeout(() => confetti.remove(), animationDuration * 1000);
+            }
+        }
+    </script>
+</body>
+</html>
